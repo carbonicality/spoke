@@ -8,7 +8,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.fog.min.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="./styles.css">
+        <link rel="stylesheet" href="./styles/styles.css">
     </head>
     <body>
         <div class="sidebar">
@@ -42,6 +42,12 @@
                 </div>
             </div>
         </div>
-        <script src="./script.js"></script>
+        <div class="content hidden" id="games-view">
+            <iframe src="./pages/games.html" frameborder="0" id="gamesFrame"></iframe>
+        </div>
+        <div class="content hidden" id="games-view">
+            <iframe src="./pages/browser.html" frameborder="0" id="browserFrame"></iframe>
+        </div>
+        <script src="./scripts/script.js"></script>
     </body>
 </html>

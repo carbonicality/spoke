@@ -7,6 +7,13 @@ buttons.forEach(btn => {
     });
 });
 
+document.querySelectorAll('.sidebar-btn').forEach(btn => {
+    btn.addEventListener('click',() => {
+        if (btn.dataset.label==='Games') window.location.href='./pages/games.html';
+        if (btn.dataset.label==='Home') window.location.href='./index.html';
+    });
+});
+
 VANTA.FOG({
     el: "#home-bg",
     highlightColor: 0x1c2333,

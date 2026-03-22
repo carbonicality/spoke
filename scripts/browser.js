@@ -41,7 +41,13 @@ input.addEventListener('keydown', (e)=>{
 
 frame.addEventListener('load',()=>{
     try {
-        const url = frame.contentWindow.location.href;
-        if (url && url!=='about:blank') input.value = url;
+        const encoded = frame.contentWindow.location.href;
+        if(!encoded || encoded==='about:blank') return;
+        try {
+            const decoded = scramjet.decodeUrl(encoded);
+            if (decoded) input.value =decoded;
+        } catch {
+            input.value=encoded;
+        }
     } catch (e) {}
 });

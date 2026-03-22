@@ -27,7 +27,7 @@ document.querySelectorAll('.sidebar-btn').forEach(btn => {
 });
 
 VANTA.FOG({
-    el: "#home-view",
+    el: "#home-bg",
     highlightColor: 0x1c2333,
     midtoneColor: 0x111827,
     lowlightColor: 0x0d1119,

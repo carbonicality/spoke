@@ -7,6 +7,29 @@ let aGames = [];
 const COVER_URL = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
 const HTML_URL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
 
+const imgObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry => {
+        if(entry.isIntersecting) {
+            const img = entry.target;
+            img.src=img.dataset.src;
+            imgObserver.unobserve(img);
+        }
+    });
+},{rootMargin:'150px'});
+
+const sentinel = document.createElement('div');
+sentinel.style.cssText = 'width:100%;height:1px;grid-column:1/-1;';
+const scrollObserver = new IntersectionObserver((entries)=>{
+    if (entries[0].isIntersecting) {
+        sentinel.remove();
+        renderChunk();
+    }
+},{rootMargin:'200px'});
+scrollObserver.observe(sentinel);
+
+let renderIdx = 0;
+const CHUNK = 20;
+
 async function fetchGames() {
     try {
         let zonesUrl = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
@@ -16,7 +39,7 @@ async function fetchGames() {
                 const shajson = await sharesponse.json();
                 const sha = shajson[0]['sha'];
                 if (sha) {
-                    zonesUrl = `https://cdn.jsdelivr.net/gh/gn-math/assets@${sha}/zones.json`;
+                    zonesUrl = `https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json`;
                 }
             }
         } catch (e) {
@@ -58,23 +81,42 @@ function genFallback(name) {
     return `<div class="fallback-icon">${initials}</div>`;
 }
 
+function renderChunk() {
+    const grid = document.getElementById('gameGrid');
+    if (!grid) return;
+    const chunk = fGames.slice(renderIdx, renderIdx+CHUNK);
+    chunk.forEach((game, i)=> {
+        const card = createGC(game);
+        card.style.animationDelay=`${i*0.03}s`;
+        grid.appendChild(card);
+    });
+    renderIdx += CHUNK;
+    if (renderIdx<fGames.length) {
+        grid.appendChild(sentinel);
+    }
+}
+
 function createGC(game) {
     const card = document.createElement('div');
     card.className = 'gcard';
     card.innerHTML = `
     <div class="gicon">
-        <img src="${game.icon}" alt="${game.name}" loading="lazy">
+        <img data-src="${game.icon}" alt="${game.name}" loading="lazy">
         <div class="gicon-overlay"><span>${game.name}</span></div>
     </div>`;
     const img = card.querySelector('img');
+    img.addEventListener('load',() => {
+        if (!game.icon) img.parentElement.innerHTML = genFallback(game.name);
+    });
+    img.addEventListener('error',() => {
+        img.parentElement.innerHTML = genFallback(game.name);
+    });
     if (!game.icon) {
-        img.parentElement.innerHTML=genFallback(game.name);
+        img.parentElement.innerHTML = genFallback(game.name);
     } else {
-        img.addEventListener('error',() => {
-            img.parentElement.innerHTML = genFallback(game.name);
-        });
+        imgObserver.observe(img);
     }
-    card.addEventListener('click',()=>openGame(game));
+    card.addEventListener('click',() => openGame(game));
     return card;
 }
 
@@ -141,14 +183,14 @@ function renderGames() {
     const emptyState=document.getElementById('emptyState');
     if (!grid) return;
     grid.innerHTML = '';
+    renderIdx = 0;
     if (fGames.length===0) {
-        grid.style.display ='grid';
+        grid.style.display='none';
+        emptyState.style.display='flex';
+    } else {
+        grid.style.display='grid';
         emptyState.style.display='none';
-        fGames.forEach((game,index)=> {
-            const card=createGC(game);
-            card.style.animationDelay = `${index*0.05}s`;
-            grid.appendChild(card);
-        });
+        renderChunk();
     }
     lucide.createIcons();
 }
